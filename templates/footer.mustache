@@ -1,0 +1,19 @@
+<tr>
+    {{#firstif}}
+        <td style="'background-color:#f6f6f6;'.
+            'color:#888;'.
+            'border-top:1px solid #ccc;'.
+            'font-family:Arial,Sans-serif;'.
+            'font-size:11px;'.
+            'padding: 20px 10px;'" colspan="2">
+            {{#str}} reminderfrom, local_reminders{{/str}} <a href="{{firstlink}}" target="_blank">{{#str}}moodlecalendarname, local_reminders{{/str}}</a></td>
+    {{/firstif}}
+    {{#secondif}}
+        <td style="'background-color:#f6f6f6;'.
+            'color:#888;'.
+            'border-top:1px solid #ccc;'.
+            'font-family:Arial,Sans-serif;'.
+            'font-size:11px;'.
+            'padding: 20px 10px;'" colspan="2">{{{secondlink}}}</td>
+    {{/secondif}}
+</tr>

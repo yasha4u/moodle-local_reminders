@@ -241,11 +241,10 @@ abstract class local_reminder {
         global $CFG;
 
         if (isset($CFG->local_reminders_emailheadercustom) && trim($CFG->local_reminders_emailheadercustom) !== '') {
-            $htmltext = html_writer::start_tag('div');
-            $htmltext .= text_to_html($CFG->local_reminders_emailheadercustom, false, false, true);
-            return $htmltext.html_writer::end_tag('div');
+            $output['emailheadercustom'] = text_to_html($CFG->local_reminders_emailheadercustom, false, false, true);
         }
-        return '';
+
+        return $output;
     }
 
     /**
@@ -273,30 +272,17 @@ abstract class local_reminder {
     /**
      * Gets the footer content of the e-mail message.
      *
-     * @return string footer content.
+     * @return array footer content.
      */
     protected function get_html_footer() {
         global $CFG;
 
-        $footer = html_writer::start_tag('tr');
-        $moodlecalendarname = get_string('moodlecalendarname', 'local_reminders');
-        $calendarlink = html_writer::link($CFG->wwwroot.'/calendar/index.php', $moodlecalendarname, array('target' => '_blank'));
-
         if (isset($CFG->local_reminders_emailfooterdefaultenabled) && $CFG->local_reminders_emailfooterdefaultenabled) {
-            $footer .= html_writer::start_tag('td', array('style' => $this->footerdefstyle, 'colspan' => 2));
-            $footer .= get_string('reminderfrom', 'local_reminders').' ';
-            $footer .= $calendarlink;
-
+            $output['firstlink'] = new moodle_url($CFG->wwwroot.'/calendar/index.php');
         } else if (isset($CFG->local_reminders_emailfootercustom) && trim($CFG->local_reminders_emailfootercustom) !== '') {
-            $footer .= html_writer::start_tag('td', array('style' => $this->footerstyle, 'colspan' => 2));
-            $footer .= text_to_html($CFG->local_reminders_emailfootercustom, false, false, true);
-
-        } else {
-            return '';
+            $output['secondlink'] = text_to_html($CFG->local_reminders_emailfootercustom, false, false, true);
         }
-
-        $footer .= html_writer::end_tag('td').html_writer::end_tag('tr');
-        return $footer;
+        return $output;
     }
 
     /**
