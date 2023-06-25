@@ -1,0 +1,40 @@
+<head>
+
+</head>
+<body id="email">
+<div>
+    {{emailheadercustom}}
+</div>
+<div>
+    <table cellspacing="0" cellpadding="8" style="{{tbodycssstyle}}">
+        <tr>
+            <td><h3 style="{{titlestyle}}">{{contenttitle}}</h3></td>
+        </tr>
+        <tr>
+            <td colspan="2">{{{generate_event_link}}}</td>
+        </tr>
+        {{#overdue}}
+            <tr>
+                <td colspan="2"><h4 style="{{overduestyle}}">{{overduemessage}}</h4></td>
+            </tr>
+        {{/overdue}}
+        <tr>
+            <td>{{#str}}contentwhen, local_reminders{{/str}}</td>
+            <td>{{time}}</td>
+            <td>{{location}}</td>
+        </tr>
+        <tr>
+            <td>{{#str}}contenttypecourse, local_reminders {{/str}} </td>
+            <td>{{fullname}}</td>
+        </tr>
+        <tr>
+            <td>{{#str}}contenttypeactivity, local_reminders{{/str}}</td>
+            <td><a href="{{activitylink}}" target="_blank">{{namelink}}</a></td>
+        </tr>
+        <tr>
+            <td>{{{description}}}</td>
+        </tr>
+        {{> local_reminders/footer }}
+    </table>
+</div>
+</body>

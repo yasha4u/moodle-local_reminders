@@ -138,45 +138,35 @@ class due_reminder extends course_reminder {
      * @return string Message content as HTML text.
      */
     public function get_message_html($user=null, $changetype=null, $ctxinfo=null) {
-        $htmlmail = $this->get_html_header();
-        $htmlmail .= html_writer::start_tag('body', array('id' => 'email'));
-        $htmlmail .= $this->get_reminder_header();
-        $htmlmail .= html_writer::start_tag('div');
-        $htmlmail .= html_writer::start_tag('table',
-                array('cellspacing' => 0, 'cellpadding' => 8, 'style' => $this->tbodycssstyle));
-
+        $output = $this->get_reminder_header();
+        $output['tbodycssstyle'] = $this->tbodycssstyle;
         $contenttitle = $this->get_message_title();
+        
         if (!isemptystring($changetype)) {
             if (!is_null($ctxinfo) && property_exists($ctxinfo, 'overduetitle') && !isemptystring($ctxinfo->overduetitle)) {
                 $titleprefixlangstr = get_string('calendarevent'.strtolower($changetype).'prefix', 'local_reminders');
                 $contenttitle = "[$ctxinfo->overduetitle]: $contenttitle";
             }
         }
-        $htmlmail .= html_writer::start_tag('tr');
-        $htmlmail .= html_writer::start_tag('td', array('colspan' => 2));
-        $htmlmail .= html_writer::link($this->generate_event_link(),
-                html_writer::tag('h3', $contenttitle, array('style' => $this->titlestyle)),
-                array('style' => 'text-decoration: none'));
-        $htmlmail .= html_writer::end_tag('td').html_writer::end_tag('tr');
 
         if (!isemptystring($changetype) && $changetype == REMINDERS_CALL_TYPE_OVERDUE
             && !is_null($ctxinfo) && !isemptystring($ctxinfo->overduemessage)) {
-            $htmlmail .= html_writer::start_tag('tr');
-            $htmlmail .= html_writer::start_tag('td', array('colspan' => 2));
-            $htmlmail .= html_writer::tag('h4', $ctxinfo->overduemessage, array('style' => $this->overduestyle));
-            $htmlmail .= html_writer::end_tag('td').html_writer::end_tag('tr');
+            $output['overdue'] = [
+                'overduemessage' => $ctxinfo->overduemessage,
+                'overduestyle' => $this->overduestyle,
+            ];
         }
 
-        $htmlmail .= $this->write_table_row(get_string('contentwhen', 'local_reminders'),
-            format_event_time_duration($user, $this->event));
-        $htmlmail .= $this->write_location_info($this->event);
-
-        $htmlmail .= $this->write_table_row(get_string('contenttypecourse', 'local_reminders'), $this->course->fullname);
-
-        $activitylink = html_writer::link($this->cm->get_url(), $this->cm->get_context_name(), array('target' => '_blank'));
-        $htmlmail .= $this->write_table_row(get_string('contenttypeactivity', 'local_reminders'), $activitylink);
-
+        $output['generate_event_link'] = $this->generate_event_link();
+        $output['titlestyle'] = $this->titlestyle;
+        $output['contenttitle'] = $contenttitle;
+        $output['time'] = format_event_time_duration($user, $this->event);
+        $output['location'] = $this->write_location_info($this->event);
+        $output['fullname'] = $this->coursecategory->name;
+        $output['activitylink'] = $this->cm->get_url();
+        $output['namelink'] = $this->cm->get_context_name();
         $formattercls = null;
+
         if (!empty($this->modname) && !empty($this->activityobj)) {
             $clsname = 'local_reminder_'.$this->modname.'_handler';
             if (class_exists($clsname)) {
@@ -187,13 +177,9 @@ class due_reminder extends course_reminder {
 
         $description = isset($formattercls) ? $formattercls->get_description($this->activityobj, $this->event) :
             $this->event->description;
-        $htmlmail .= $this->write_description($description, $this->event);
-
-        $htmlmail .= $this->get_html_footer();
-        return $htmlmail.html_writer::end_tag('table').
-            html_writer::end_tag('div').
-            html_writer::end_tag('body').
-            html_writer::end_tag('html');
+        $output['description'] = $this->write_description($description, $this->event);
+        $output = array_merge($this->get_html_footer(), $output);
+        return render_from_template('local_reminders\due_reminder', $output);
     }
 
     /**
