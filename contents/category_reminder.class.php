@@ -68,10 +68,12 @@ class category_reminder extends local_reminder {
         $output = $this->get_reminder_header();
         $output['tbodycssstyle'] = $this->tbodycssstyle;
         $contenttitle = $this->get_message_title();
-        if (!isemptystring($changetype)) { //хз че с этим делать
+
+        if (!isemptystring($changetype)) {
             $titleprefixlangstr = get_string('calendarevent'.strtolower($changetype).'prefix', 'local_reminders');
             $contenttitle = "[$titleprefixlangstr]: $contenttitle";
         }
+
         $output['generate_event_link'] = $this->generate_event_link();
         $output['titlestyle'] = $this->titlestyle;
         $output['contenttitle'] = $contenttitle;
@@ -81,6 +83,7 @@ class category_reminder extends local_reminder {
         $description = $this->event->description;
         $output['descriptionscourse'] = $this->write_description($description, $this->event);
         $output = array_merge($this->get_html_footer(), $output);
+
         return render_from_template('local_reminders\category_reminder', $output);
     }
 

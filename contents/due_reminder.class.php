@@ -166,12 +166,14 @@ class due_reminder extends course_reminder {
         $output['activitylink'] = $this->cm->get_url();
         $output['namelink'] = $this->cm->get_context_name();
         $formattercls = null;
+        $appendinfo = '';
 
         if (!empty($this->modname) && !empty($this->activityobj)) {
             $clsname = 'local_reminder_'.$this->modname.'_handler';
             if (class_exists($clsname)) {
                 $formattercls = new $clsname;
-                $formattercls->append_info($htmlmail, $this->modname, $this->activityobj, $user, $this->event, $this);
+                $formattercls->append_info($appendinfo, $this->modname, $this->activityobj, $user, $this->event, $this);
+                $output['appendinfo'] = $appendinfo;
             }
         }
 

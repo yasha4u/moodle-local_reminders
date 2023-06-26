@@ -45,7 +45,7 @@ abstract class local_reminder_activity_handler {
      * @param object $reminder reminder reference.
      * @return void nothing.
      */
-    public function append_info(&$htmlmail, $modulename, $activity, $user=null, $event=null, $reminder=null) {
+    public function append_info($htmlmail, $modulename, $activity, $user=null, $event=null, $reminder=null) {
         // Do nothing.
     }
 
@@ -229,7 +229,7 @@ class local_reminder_quiz_handler extends local_reminder_activity_handler {
      * @param object $reminder reminder reference.
      * @return void nothing.
      */
-    public function append_info(&$htmlmail, $modulename, $activity, $user=null, $event=null, $reminder=null) {
+    public function append_info($htmlmail, $modulename, $activity, $user=null, $event=null, $reminder=null) {
         if (isset($activity->timelimit) && $activity->timelimit > 0) {
             $htmlmail .= $reminder->write_table_row(
                 get_string('timelimit', 'quiz'),
@@ -288,7 +288,7 @@ class local_reminder_assign_handler extends local_reminder_activity_handler {
      * @param object $reminder reminder reference.
      * @return void nothing.
      */
-    public function append_info(&$htmlmail, $modulename, $activity, $user=null, $event=null, $reminder=null) {
+    public function append_info($htmlmail, $modulename, $activity, $user=null, $event=null, $reminder=null) {
         if (isset($activity->cutoffdate) && $activity->cutoffdate > 0) {
             $htmlmail .= $reminder->write_table_row(
                 get_string('cutoffdate', 'assign'),

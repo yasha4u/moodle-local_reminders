@@ -131,63 +131,64 @@ class group_reminder extends local_reminder {
      * @return string Message content as HTML text.
      */
     public function get_message_html($user=null, $changetype=null, $ctxinfo=null) {
-        global $CFG;
+        global $CFG, $OUTPUT;
 
-        $htmlmail = $this->get_html_header();
-        $htmlmail .= html_writer::start_tag('body', array('id' => 'email'));
-        $htmlmail .= $this->get_reminder_header();
-        $htmlmail .= html_writer::start_tag('div');
-        $htmlmail .= html_writer::start_tag('table',
-                array('cellspacing' => 0, 'cellpadding' => 8, 'style' => $this->tbodycssstyle));
-
+        $output = $this->get_reminder_header();
+        $output['tbodycssstyle'] = $this->tbodycssstyle;
         $contenttitle = $this->get_message_title();
+
         if (!isemptystring($changetype)) {
             $titleprefixlangstr = get_string('calendarevent'.strtolower($changetype).'prefix', 'local_reminders');
             $contenttitle = "[$titleprefixlangstr]: $contenttitle";
         }
-        $htmlmail .= html_writer::start_tag('tr');
-        $htmlmail .= html_writer::start_tag('td', array('colspan' => 2));
-        $htmlmail .= html_writer::link($this->generate_event_link(),
-                html_writer::tag('h3', $contenttitle, array('style' => $this->titlestyle)),
-                array('style' => 'text-decoration: none'));
-        $htmlmail .= html_writer::end_tag('td').html_writer::end_tag('tr');
 
-        $htmlmail .= $this->write_table_row(get_string('contentwhen', 'local_reminders'),
-            format_event_time_duration($user, $this->event));
-        $htmlmail .= $this->write_location_info($this->event);
+        $output['generate_event_link'] = $this->generate_event_link();
+        $output['titlestyle'] = $this->titlestyle;
+        $output['contenttitle'] = $contenttitle;
+        $output['time'] = format_event_time_duration($user, $this->event);
+        $output['location'] = $this->write_location_info($this->event);
 
         if (!empty($this->course)) {
-            $htmlmail .= $this->write_table_row(get_string('contenttypecourse', 'local_reminders'), $this->course->fullname);
+            $output['ifnotemptycourse'] = true;
+            $output['fullname'] = $this->course->fullname;
+        } else {
+            $output['ifnotemptycourse'] = false;
         }
 
         if (!empty($this->cm)) {
-            $cmlink = html_writer::link($this->cm->get_url(), $this->cm->get_context_name());
-            $htmlmail .= $this->write_table_row(get_string('contenttypeactivity', 'local_reminders'),
-                $cmlink, array('target' => '_blank'), false);
+            $output['ifnotemptycm'] = true;
+            $output['cmurl'] = $this->cm->get_url();
+            $output['cmurlname'] = $this->cm->get_context_name();
+        } else {
+            $output['ifnotemptycm'] = false;
         }
 
         if (isset($CFG->local_reminders_groupshowname) && $CFG->local_reminders_groupshowname) {
-            $htmlmail .= $this->write_table_row(get_string('contenttypegroup', 'local_reminders'), $this->group->name);
+            $output['ifissetgroupname'] = true;
+            $output['groupname'] = $this->group->name;
+        } else {
+            $output['ifissetgroupname'] = false;
         }
 
         $formattercls = null;
+        $appendinfo = '';
+
         if (!empty($this->modname) && !empty($this->activityobj)) {
             $clsname = 'local_reminder_'.$this->modname.'_handler';
             if (class_exists($clsname)) {
                 $formattercls = new $clsname;
-                $formattercls->append_info($htmlmail, $this->modname, $this->activityobj, $user, $this->event);
+
+                $formattercls->append_info($appendinfo, $this->modname, $this->activityobj, $user, $this->event);
+                $output['appendinfo'] = $appendinfo;
             }
         }
 
         $description = isset($formattercls) ? $formattercls->get_description($this->activityobj, $this->event) :
             $this->event->description;
-        $htmlmail .= $this->write_description($description, $this->event);
+        $output['descriptionscourse'] = $this->write_description($description, $this->event);
+        $output = array_merge($this->get_html_footer(), $output);
 
-        $htmlmail .= $this->get_html_footer();
-        $htmlmail .= html_writer::end_tag('table').html_writer::end_tag('div').html_writer::end_tag('body').
-                html_writer::end_tag('html');
-
-        return $htmlmail;
+        return render_from_template('local_reminders\group_reminder', $output);
     }
 
     /**
